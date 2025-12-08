@@ -12,7 +12,7 @@ const PORT = 3000;
 const pool = mysql.createPool({
     host: 'localhost',
     user: 'root',             // Default MySQL username
-    password: 'SrikaR123@',
+    password: 'YOUR_DB_PASSWORD',
     database: 'ledger_db',
     waitForConnections: true,
     connectionLimit: 10,
