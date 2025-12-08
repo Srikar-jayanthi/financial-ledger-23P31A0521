@@ -12,10 +12,91 @@ A robust Banking REST API built with **Node.js** and **MySQL**. This project imp
 
 ## 🛠️ Tech Stack
 
-* **Node.js & Express** - Backend Framework
-* **MySQL (InnoDB)** - Relational Database
-* **UUID** - Unique IDs for accounts and transactions
-* **Body-Parser** - Request parsing
+* **Runtime:** Node.js
+* **Framework:** Express.js
+* **Database:** MySQL (InnoDB Engine)
+* **Libraries:** `mysql2`, `uuid`, `body-parser`
+
+---
+
+## 🏗️ Architecture & Design
+
+### Architecture Diagram
+
+The application follows a layered MVC-style architecture where the Controller handles requests and the Service layer manages transaction atomicity.
+
+```mermaid
+graph TD
+    User[Client / Postman] -->|HTTP Request| API[Express API]
+    API -->|Validate Input| Controller[Controller Layer]
+    Controller -->|Begin Transaction| DB[(MySQL Database)]
+    DB -->|Check Balance| Controller
+    Controller -->|Insert Debit| DB
+    Controller -->|Insert Credit| DB
+    Controller -->|Commit/Rollback| DB
+    DB -->|Response| API
+```
+
+### Database Schema (ERD)
+
+We use a relational model with strict foreign keys to ensure data consistency.
+
+```mermaid
+erDiagram
+    ACCOUNTS ||--o{ TRANSACTIONS : initiates
+    ACCOUNTS ||--o{ LEDGER : "has entries"
+    TRANSACTIONS ||--|{ LEDGER : "generates"
+
+    ACCOUNTS {
+        varchar id PK
+        varchar name
+        varchar type
+        timestamp created_at
+    }
+    TRANSACTIONS {
+        varchar id PK
+        varchar type
+        decimal amount
+        varchar status
+        timestamp created_at
+    }
+    LEDGER {
+        varchar id PK
+        varchar account_id FK
+        varchar transaction_id FK
+        decimal amount
+        varchar type
+        timestamp created_at
+    }
+```
+
+## 🧠 Design Decisions
+
+### 1. Double-Entry Bookkeeping
+
+To ensure money is never created or destroyed, every `transfer` operation generates two distinct rows in the `ledger` table:
+
+* **Debit:** Negative amount linked to the source account.
+* **Credit:** Positive amount linked to the destination account.
+The sum of these two entries is always 0.
+
+### 2. ACID Compliance
+
+We use the **InnoDB** storage engine which supports full ACID transactions.
+
+* **Atomicity:** We wrap the `INSERT` statements (Debit + Credit + Transaction Record) inside a `BEGIN...COMMIT` block. If any step fails (e.g., database constraint), `ROLLBACK` is triggered.
+* **Consistency:** Foreign keys ensure ledger entries always relate to valid accounts.
+
+### 3. Isolation Level
+
+We rely on MySQL's default **REPEATABLE READ** isolation level.
+
+* **Rationale:** This level prevents "Dirty Reads" (reading uncommitted data) and "Non-Repeatable Reads". This ensures that if we check a balance at the start of a transaction, it remains consistent throughout the operation, preventing race conditions where two simultaneous transfers might spend the same money.
+
+### 4. Balance Calculation & Negative Balance Prevention
+
+* **Calculation:** We do not store a "current balance" column. Instead, `SELECT SUM(amount)` is run against the ledger. This avoids the "drift" issue where a cached balance gets out of sync with history.
+* **Prevention:** Before any debit is inserted, we query the sum of the ledger. If `(Current Sum - Withdrawal Amount) < 0`, the transaction is strictly rejected with a `422 Unprocessable Entity` error.
 
 ---
 
@@ -107,11 +188,3 @@ The API will run on `http://localhost:3000`.
 ### 5️⃣ View Statement (Ledger)
 
 **GET** `/accounts/{accountId}/ledger`
-
----
-
-## 🛡️ Database Schema
-
-* **Accounts:** Stores user ID and metadata.
-* **Transactions:** Records the intent and status of a move.
-* **Ledger:** The immutable record of money movement (Debits/Credits).
