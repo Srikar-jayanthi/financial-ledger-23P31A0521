@@ -12,10 +12,10 @@ A robust Banking REST API built with **Node.js** and **MySQL**. This project imp
 
 ## 🛠️ Tech Stack
 
-* **Runtime:** Node.js
-* **Framework:** Express.js
-* **Database:** MySQL (InnoDB Engine)
-* **Libraries:** `mysql2`, `uuid`, `body-parser`
+* **Node.js & Express** - Backend Framework
+* **MySQL (InnoDB)** - Relational Database
+* **UUID** - Unique IDs for accounts and transactions
+* **Body-Parser** - Request parsing
 
 ---
 
