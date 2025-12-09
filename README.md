@@ -105,7 +105,7 @@ We rely on MySQL's default **REPEATABLE READ** isolation level.
 ### 1. Clone the Repository
 
 ```bash
-git clone [https://github.com/Srikar-jayanthi/financial-ledger.git](https://github.com/Srikar-jayanthi/financial-ledger.git)
+git clone https://github.com/Srikar-jayanthi/financial-ledger.git
 cd financial-ledger
 ```
 
