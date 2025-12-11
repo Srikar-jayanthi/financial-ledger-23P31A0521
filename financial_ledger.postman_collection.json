@@ -137,6 +137,54 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "6. Get Balance",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/accounts/a649ae62-baa7-4436-bba7-eec9ef26e912",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"accounts",
+						"a649ae62-baa7-4436-bba7-eec9ef26e912"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7. Withdraw Money",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"accountId\": \"a649ae62-baa7-4436-bba7-eec9ef26e912\",\n    \"amount\": 500\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/withdrawals",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"withdrawals"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
